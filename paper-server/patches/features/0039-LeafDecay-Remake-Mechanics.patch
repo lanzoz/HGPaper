@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 10:01:01 +0700
+Subject: [PATCH] LeafDecay Remake Mechanics
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index d374e2d34ca3b75533e4f4fcd2ed7aa07e6d028f..04f4b2dba105e62e0a5d3085a239a248a7e3c8c1 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -77,11 +77,8 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             return;
+         }
+ 
+-        // 2. เช็คว่าควรสลายตัวไหม (โดยไม่พึ่งค่า DISTANCE ของเดิม)
+-        // เราจะใช้การเช็คไม้รอบๆ แบบ Manual แทน เพื่อให้เราสามารถคงค่า Distance เดิมไว้คุม Model ได้
+         if (!hasLogNearby(level, pos)) {
+ 
+-            // --- ส่วนของ CraftBukkit (ใส่ไว้เหมือนเดิมเพื่อให้ Plugin ทำงานได้) ---
+             org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+             level.getCraftServer().getPluginManager().callEvent(event);
+ 
+@@ -93,8 +90,8 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             dropResources(state, level, pos);
+             level.removeBlock(pos, false);
+         }
+-
+-        /*if (this.decaying(state)) {
++        /*
++        if (this.decaying(state)) {
+             // CraftBukkit start
+             org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+             level.getCraftServer().getPluginManager().callEvent(event);

@@ -1,0 +1,287 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Thu, 5 Feb 2026 23:07:32 +0700
+Subject: [PATCH] First Modifier
+
+
+diff --git a/net/minecraft/server/Eula.java b/net/minecraft/server/Eula.java
+index 1f0413214f54e9a47f53c623484d6882c85f54c9..5dd23a81d0c8836257cf25e666a99e534a996252 100644
+--- a/net/minecraft/server/Eula.java
++++ b/net/minecraft/server/Eula.java
+@@ -26,7 +26,7 @@ public class Eula {
+             try (InputStream inputStream = Files.newInputStream(this.file)) {
+                 Properties map = new Properties();
+                 map.load(inputStream);
+-                var3 = Boolean.parseBoolean(map.getProperty("eula", "false"));
++                var3 = Boolean.parseBoolean(map.getProperty("eula", "true"));
+             }
+ 
+             return var3;
+@@ -45,7 +45,7 @@ public class Eula {
+         if (!SharedConstants.IS_RUNNING_IN_IDE) {
+             try (OutputStream outputStream = Files.newOutputStream(this.file)) {
+                 Properties map = new Properties();
+-                map.setProperty("eula", "false");
++                map.setProperty("eula", "true");
+                 map.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (" + CommonLinks.EULA + ").");
+             } catch (Exception var6) {
+                 LOGGER.warn("Failed to save {}", this.file, var6);
+diff --git a/net/minecraft/world/level/block/CaveVinesBlock.java b/net/minecraft/world/level/block/CaveVinesBlock.java
+index f4a4dc14012c110e58b1c9272d80d4b89394d090..12fa7ff1c1c89ee637621072546b6c19558e7ffd 100644
+--- a/net/minecraft/world/level/block/CaveVinesBlock.java
++++ b/net/minecraft/world/level/block/CaveVinesBlock.java
+@@ -80,16 +80,25 @@ public class CaveVinesBlock extends GrowingPlantHeadBlock implements CaveVines {
+ 
+     @Override
+     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+-        return !state.getValue(BERRIES);
++        /*return !state.getValue(BERRIES);*/
++        return false;
+     }
+ 
+     @Override
+     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+-        level.setBlock(pos, state.setValue(BERRIES, true), Block.UPDATE_CLIENTS);
++        /*level.setBlock(pos, state.setValue(BERRIES, true), Block.UPDATE_CLIENTS);*/
++
++    }
++    @Override
++    protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
++        return;
++    }
++    @Override
++    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+     }
+ }
+diff --git a/net/minecraft/world/level/block/CaveVinesPlantBlock.java b/net/minecraft/world/level/block/CaveVinesPlantBlock.java
+index aba65098fb3202e31b07aa2cee52acc5b671fa95..21a3e4ef04b4125c23fb8045f6b2e07f1f0547f3 100644
+--- a/net/minecraft/world/level/block/CaveVinesPlantBlock.java
++++ b/net/minecraft/world/level/block/CaveVinesPlantBlock.java
+@@ -56,16 +56,25 @@ public class CaveVinesPlantBlock extends GrowingPlantBodyBlock implements CaveVi
+ 
+     @Override
+     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+-        return !state.getValue(BERRIES);
++        /*return !state.getValue(BERRIES);*/
++        return false;
+     }
+ 
+     @Override
+     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+-        level.setBlock(pos, state.setValue(BERRIES, true), Block.UPDATE_CLIENTS);
++        /*level.setBlock(pos, state.setValue(BERRIES, true), Block.UPDATE_CLIENTS);*/
+     }
++    @Override
++    protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
++        return;
++    }
++    @Override
++    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
++    }
++
+ }
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index d5b114dca7b28d910f03ae3468e891d5d9863897..79694e38c77110db9ffb2077007ba134d04ea1f6 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -108,10 +108,11 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+         }
+ 
+-        int i = getDistanceAt(neighborState) + 1;
++        /*int i = getDistanceAt(neighborState) + 1;
+         if (i != 1 || state.getValue(DISTANCE) != i) {
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+-        }
++        }*/
++
+ 
+         return state;
+     }
+diff --git a/net/minecraft/world/level/block/ObserverBlock.java b/net/minecraft/world/level/block/ObserverBlock.java
+index 3c12d8e23f20b666b0005e597ba2e803c02d5d78..06e58bfaf982e656437b2e8a78edbc2e1d695f27 100644
+--- a/net/minecraft/world/level/block/ObserverBlock.java
++++ b/net/minecraft/world/level/block/ObserverBlock.java
+@@ -49,6 +49,9 @@ public class ObserverBlock extends DirectionalBlock {
+ 
+     @Override
+     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
++
++        if (true) return;
++
+         if (state.getValue(POWERED)) {
+             // CraftBukkit start
+             if (org.bukkit.craftbukkit.event.CraftEventFactory.callRedstoneChange(level, pos, 15, 0).getNewCurrent() != 0) {
+@@ -103,17 +106,19 @@ public class ObserverBlock extends DirectionalBlock {
+ 
+     @Override
+     protected boolean isSignalSource(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+     protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
+-        return state.getSignal(level, pos, side);
++        /*return state.getSignal(level, pos, side);*/
++        return 0;
+     }
+ 
+     @Override
+     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
+-        return state.getValue(POWERED) && state.getValue(FACING) == side ? 15 : 0;
++        /*return state.getValue(POWERED) && state.getValue(FACING) == side ? 15 : 0;*/
++        return 0;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
+index 6d98bc37d88459d1e0a171b52bbff5810d775c38..2756f43cb8a937ca91ee674ea98a47501dc94f6c 100644
+--- a/net/minecraft/world/level/block/RedStoneWireBlock.java
++++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
+@@ -297,8 +297,10 @@ public class RedStoneWireBlock extends Block {
+      * not been relevant since 1.13, thus it has been greatly simplified.
+      */
+     public BlockState calculateCurrentChanges(Level level, BlockPos pos, BlockState state) {
+-        int oldPower = state.getValue(POWER);
+-        int newPower = ((DefaultRedstoneWireEvaluator) evaluator).calculateTargetStrength(level, pos);
++        int oldPower = 0;
++        /*int oldPower = state.getValue(POWER);*/
++        int newPower = 0;
++        /*int newPower = ((DefaultRedstoneWireEvaluator) evaluator).calculateTargetStrength(level, pos);*/
+         if (oldPower != newPower) {
+             org.bukkit.event.block.BlockRedstoneEvent event = new org.bukkit.event.block.BlockRedstoneEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos), oldPower, newPower);
+             level.getCraftServer().getPluginManager().callEvent(event);
+diff --git a/net/minecraft/world/level/block/TwistingVinesBlock.java b/net/minecraft/world/level/block/TwistingVinesBlock.java
+index afb77747ea6966c435aca4b667bfbbc909f52232..898d662bd341892472439d4d1cd8496126d4ccae 100644
+--- a/net/minecraft/world/level/block/TwistingVinesBlock.java
++++ b/net/minecraft/world/level/block/TwistingVinesBlock.java
+@@ -34,4 +34,20 @@ public class TwistingVinesBlock extends GrowingPlantHeadBlock {
+     protected boolean canGrowInto(BlockState state) {
+         return NetherVines.isValidGrowthState(state);
+     }
++
++    @Override
++    protected void randomTick(BlockState state, net.minecraft.server.level.ServerLevel world, net.minecraft.core.BlockPos pos, net.minecraft.util.RandomSource random) {
++        return;
++    }
++
++    @Override
++    public boolean isValidBonemealTarget(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos, BlockState state) {
++        return false;
++    }
++
++    @Override
++    public boolean isBonemealSuccess(net.minecraft.world.level.Level level, net.minecraft.util.RandomSource random, net.minecraft.core.BlockPos pos, BlockState state) {
++        return false;
++    }
++
+ }
+diff --git a/net/minecraft/world/level/block/TwistingVinesPlantBlock.java b/net/minecraft/world/level/block/TwistingVinesPlantBlock.java
+index a332cbb7daa47a49b1e94cd9fd2b3e04620e8de1..e612d94707c94d22474739f04172f01f9198fd83 100644
+--- a/net/minecraft/world/level/block/TwistingVinesPlantBlock.java
++++ b/net/minecraft/world/level/block/TwistingVinesPlantBlock.java
+@@ -22,4 +22,23 @@ public class TwistingVinesPlantBlock extends GrowingPlantBodyBlock {
+     protected GrowingPlantHeadBlock getHeadBlock() {
+         return (GrowingPlantHeadBlock)Blocks.TWISTING_VINES;
+     }
++
++    @Override
++    protected void randomTick(net.minecraft.world.level.block.state.BlockState state, net.minecraft.server.level.ServerLevel world, net.minecraft.core.BlockPos pos, net.minecraft.util.RandomSource random) {
++        return;
++    }
++
++    @Override
++    public boolean isValidBonemealTarget(net.minecraft.world.level.LevelReader level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
++        return false;
++    }
++
++    @Override
++    public boolean isBonemealSuccess(net.minecraft.world.level.Level level, net.minecraft.util.RandomSource random, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
++        return false;
++    }
++
++    @Override
++    public void performBonemeal(net.minecraft.server.level.ServerLevel level, net.minecraft.util.RandomSource random, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
++    }
+ }
+diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index 12f8105d6b12c5d63cb6e5e79435c7fd22655475..0c84cb909676862d86576592957e5363cfaed496 100644
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -133,6 +133,18 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         blockEntity.tickedGameTime = level.getGameTime();
+         if (!blockEntity.isOnCooldown()) {
+             blockEntity.setCooldown(0);
++
++            boolean result = tryMoveItems(level, pos, state, blockEntity, () -> {
++                return suckInItems(level, blockEntity);
++            });
++
++            // --- เริ่มส่วนที่คุณแก้ ---
++            if (result) {
++                blockEntity.setCooldown(40);
++            } else {
++                blockEntity.setCooldown(100);
++            }
++            /*
+             // Spigot start
+             boolean result = tryMoveItems(level, pos, state, blockEntity, () -> {
+                 return suckInItems(level, blockEntity);
+@@ -140,7 +152,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+             if (!result && blockEntity.level.spigotConfig.hopperCheck > 1) {
+                 blockEntity.setCooldown(blockEntity.level.spigotConfig.hopperCheck);
+             }
+-            // Spigot end
++            // Spigot end*/
+         }
+     }
+ 
+@@ -546,9 +558,11 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         } else {
+             boolean flag = hopper.isGridAligned() && blockState.isCollisionShapeFullBlock(level, blockPos) && !blockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
+             if (!flag) {
+-                for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
+-                    if (addItem(hopper, itemEntity)) {
+-                        return true;
++                if (level.getGameTime() % 4 == 0) {
++                    for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
++                        if (addItem(hopper, itemEntity)) {
++                            return true;
++                        }
+                     }
+                 }
+             }
+diff --git a/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java b/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java
+index 62c3b6fc4aa43c531a1d82bf81b3aedcb675e54a..b38968ed67300a93b23a317f52fdfdff58b9fc45 100644
+--- a/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java
++++ b/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java
+@@ -17,11 +17,14 @@ public abstract class RedstoneWireEvaluator {
+     public abstract void updatePowerStrength(Level level, BlockPos pos, BlockState state, @Nullable Orientation orientation, boolean updateShape);
+ 
+     protected int getBlockSignal(Level level, BlockPos pos) {
+-        return this.wireBlock.getBlockSignal(level, pos);
++
++        /*return this.wireBlock.getBlockSignal(level, pos);*/
++        return 0;
+     }
+ 
+     protected int getWireSignal(BlockPos pos, BlockState state) {
+-        return state.is(this.wireBlock) ? state.getValue(RedStoneWireBlock.POWER) : 0;
++        /*return state.is(this.wireBlock) ? state.getValue(RedStoneWireBlock.POWER) : 0;*/
++        return 0;
+     }
+ 
+     protected int getIncomingWireSignal(Level level, BlockPos pos) {

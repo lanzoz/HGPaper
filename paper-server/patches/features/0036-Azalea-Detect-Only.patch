@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 00:22:17 +0700
+Subject: [PATCH] Azalea Detect Only
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index 79694e38c77110db9ffb2077007ba134d04ea1f6..8a443cae3da36b29eb62a37cd778cdf3b09376a7 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -107,11 +107,15 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         if (state.getValue(WATERLOGGED)) {
+             scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+         }
++        boolean isAzalea = state.is(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES) || (state.is(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES));
++        if (isAzalea) {
++            return state;
++        }
+ 
+-        /*int i = getDistanceAt(neighborState) + 1;
++        int i = getDistanceAt(neighborState) + 1;
+         if (i != 1 || state.getValue(DISTANCE) != i) {
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+-        }*/
++        }
+ 
+ 
+         return state;
+@@ -119,15 +123,15 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+ 
+     private static BlockState updateDistance(BlockState state, LevelAccessor level, BlockPos pos) {
+         int i = 7;
+-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
++        /*BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();*/
+ 
+-        for (Direction direction : Direction.values()) {
++        /*for (Direction direction : Direction.values()) {
+             mutableBlockPos.setWithOffset(pos, direction);
+             i = Math.min(i, getDistanceAt(level.getBlockState(mutableBlockPos)) + 1);
+             if (i == 1) {
+                 break;
+             }
+-        }
++        }*/
+ 
+         return state.setValue(DISTANCE, i);
+     }

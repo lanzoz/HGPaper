@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Sat, 7 Feb 2026 13:56:30 +0700
+Subject: [PATCH] Tripwire Disable-01
+
+
+diff --git a/net/minecraft/world/level/block/TripWireBlock.java b/net/minecraft/world/level/block/TripWireBlock.java
+index 4abf3b1092739c5b1fbea49bc585b2abd6adf04b..868bffc956e09d26aaa780f6f87d397816d1615a 100644
+--- a/net/minecraft/world/level/block/TripWireBlock.java
++++ b/net/minecraft/world/level/block/TripWireBlock.java
+@@ -74,8 +74,8 @@ public class TripWireBlock extends Block {
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext context) {
+         return this.defaultBlockState();
+-        /*
+-        if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return this.defaultBlockState(); // Paper - place tripwire without updating
++
++        /*if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return this.defaultBlockState(); // Paper - place tripwire without updating
+         BlockGetter level = context.getLevel();
+         BlockPos clickedPos = context.getClickedPos();
+         return this.defaultBlockState()

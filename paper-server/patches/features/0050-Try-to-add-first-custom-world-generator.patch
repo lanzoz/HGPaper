@@ -1,0 +1,119 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 15:19:44 +0700
+Subject: [PATCH] Try to add first custom world generator
+
+
+diff --git a/net/minecraft/data/worldgen/features/TreeFeatures.java b/net/minecraft/data/worldgen/features/TreeFeatures.java
+index 55d91b4294bdb70574285f7cef19d018a3060c02..7f8869075fa04f2fda4ed4ad3ec874482a39a42b 100644
+--- a/net/minecraft/data/worldgen/features/TreeFeatures.java
++++ b/net/minecraft/data/worldgen/features/TreeFeatures.java
+@@ -82,6 +82,7 @@ public class TreeFeatures {
+     public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH = FeatureUtils.createKey("birch");
+     public static final ResourceKey<ConfiguredFeature<?, ?>> ACACIA = FeatureUtils.createKey("acacia");
+     public static final ResourceKey<ConfiguredFeature<?, ?>> SPRUCE = FeatureUtils.createKey("spruce");
++    public static final ResourceKey<ConfiguredFeature<?, ?>> TEAK_TREE = FeatureUtils.createKey("teak");
+     public static final ResourceKey<ConfiguredFeature<?, ?>> PINE = FeatureUtils.createKey("pine");
+     public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_TREE = FeatureUtils.createKey("jungle_tree");
+     public static final ResourceKey<ConfiguredFeature<?, ?>> FANCY_OAK = FeatureUtils.createKey("fancy_oak");
+@@ -169,6 +170,7 @@ public class TreeFeatures {
+                         0.1F,
+                         new WeightedStateProvider(
+                             WeightedList.<BlockState>builder()
++                                .add(Blocks.MOSS_CARPET.defaultBlockState(),3)
+                                 .add(Blocks.RED_MUSHROOM.defaultBlockState(), 2)
+                                 .add(Blocks.BROWN_MUSHROOM.defaultBlockState(), 1)
+                         ),
+@@ -465,6 +467,27 @@ public class TreeFeatures {
+                 .ignoreVines()
+                 .build()
+         );
++        FeatureUtils.register(
++            context,
++            TEAK_TREE,
++            Feature.TREE,
++            new TreeConfiguration.TreeConfigurationBuilder(
++                BlockStateProvider.simple(Blocks.NOTE_BLOCK.defaultBlockState()
++                    .setValue(net.minecraft.world.level.block.NoteBlock.INSTRUMENT, net.minecraft.world.level.block.state.properties.NoteBlockInstrument.BASEDRUM)
++                    .setValue(net.minecraft.world.level.block.NoteBlock.NOTE,1)
++                    .setValue(net.minecraft.world.level.block.NoteBlock.POWERED, false)
++                ),
++                new StraightTrunkPlacer(6, 4, 0),
++                BlockStateProvider.simple(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES.defaultBlockState()
++                    .setValue(net.minecraft.world.level.block.LeavesBlock.DISTANCE, 2)
++                    .setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, false)
++                ),
++                new net.minecraft.world.level.levelgen.feature.foliageplacers.TeakFoliagePlacer(ConstantInt.of(1), ConstantInt.of(1), UniformInt.of(3, 4)),
++                new TwoLayersFeatureSize(2, 0, 2)
++            )
++                .ignoreVines()
++                .build()
++        );
+         FeatureUtils.register(
+             context,
+             JUNGLE_TREE,
+diff --git a/net/minecraft/world/level/levelgen/feature/foliageplacers/TeakFoliagePlacer.java b/net/minecraft/world/level/levelgen/feature/foliageplacers/TeakFoliagePlacer.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c51416d9b6f31e223926c1c63f0bed919cbd4986
+--- /dev/null
++++ b/net/minecraft/world/level/levelgen/feature/foliageplacers/TeakFoliagePlacer.java
+@@ -0,0 +1,59 @@
++package net.minecraft.world.level.levelgen.feature.foliageplacers;
++
++public class TeakFoliagePlacer extends net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer {
++    public static final com.mojang.serialization.MapCodec<net.minecraft.world.level.levelgen.feature.foliageplacers.TeakFoliagePlacer> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(
++        instance -> foliagePlacerParts(instance)
++            .and(net.minecraft.util.valueproviders.IntProvider.codec(0, 24).fieldOf("height").forGetter(pineFoliagePlacer -> pineFoliagePlacer.height))
++            .apply(instance, net.minecraft.world.level.levelgen.feature.foliageplacers.TeakFoliagePlacer::new)
++    );
++    private final net.minecraft.util.valueproviders.IntProvider height;
++
++    public TeakFoliagePlacer(net.minecraft.util.valueproviders.IntProvider radius, net.minecraft.util.valueproviders.IntProvider offset, net.minecraft.util.valueproviders.IntProvider height) {
++        super(radius, offset);
++        this.height = height;
++    }
++
++    @Override
++    protected net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType<?> type() {
++        return net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType.PINE_FOLIAGE_PLACER;
++    }
++
++    @Override
++    protected void createFoliage(
++        net.minecraft.world.level.LevelSimulatedReader level,
++        net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer.FoliageSetter blockSetter,
++        net.minecraft.util.RandomSource random,
++        net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration config,
++        int maxFreeTreeHeight,
++        net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer.FoliageAttachment attachment,
++        int foliageHeight,
++        int foliageRadius,
++        int offset
++    ) {
++        int i = 0;
++
++        for (int i1 = offset; i1 >= offset - foliageHeight; i1--) {
++            this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), i, i1, attachment.doubleTrunk());
++            if (i >= 1 && i1 == offset - foliageHeight + 1) {
++                i--;
++            } else if (i < foliageRadius + attachment.radiusOffset()) {
++                i++;
++            }
++        }
++    }
++
++    @Override
++    public int foliageRadius(net.minecraft.util.RandomSource random, int radius) {
++        return super.foliageRadius(random, radius) + random.nextInt(Math.max(radius + 1, 1));
++    }
++
++    @Override
++    public int foliageHeight(net.minecraft.util.RandomSource random, int height, net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration config) {
++        return this.height.sample(random);
++    }
++
++    @Override
++    protected boolean shouldSkipLocation(net.minecraft.util.RandomSource random, int localX, int localY, int localZ, int range, boolean large) {
++        return localX == range && localZ == range && range > 0;
++    }
++}

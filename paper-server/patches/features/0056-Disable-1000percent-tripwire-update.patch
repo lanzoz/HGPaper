@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Sat, 7 Feb 2026 18:42:27 +0700
+Subject: [PATCH] Disable 1000percent tripwire update
+
+
+diff --git a/net/minecraft/world/level/block/TripWireHookBlock.java b/net/minecraft/world/level/block/TripWireHookBlock.java
+index f0496b3a25cc3f93a5d547cb464cba9b11b18325..9d74d2c5fc80fc410c75f54dd456f335e8e47be0 100644
+--- a/net/minecraft/world/level/block/TripWireHookBlock.java
++++ b/net/minecraft/world/level/block/TripWireHookBlock.java
+@@ -212,7 +212,7 @@ public class TripWireHookBlock extends Block {
+ 
+     @Override
+     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+-        calculateState(level, pos, state, false, true, -1, null);
++        /*calculateState(level, pos, state, false, true, -1, null);*/
+     }
+ 
+     private static void emitState(Level level, BlockPos pos, boolean attached, boolean powered, boolean wasAttached, boolean wasPowered) {
+@@ -232,14 +232,17 @@ public class TripWireHookBlock extends Block {
+     }
+ 
+     private static void notifyNeighbors(Block block, Level level, BlockPos pos, Direction direction) {
++        /*
+         Direction opposite = direction.getOpposite();
+         Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, opposite, Direction.UP);
+         level.updateNeighborsAt(pos, block, orientation);
+         level.updateNeighborsAt(pos.relative(opposite), block, orientation);
++         */
+     }
+ 
+     @Override
+     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
++        /*
+         if (!movedByPiston) {
+             boolean attachedValue = state.getValue(ATTACHED);
+             boolean poweredValue = state.getValue(POWERED);
+@@ -251,25 +254,30 @@ public class TripWireHookBlock extends Block {
+                 notifyNeighbors(this, level, pos, state.getValue(FACING));
+             }
+         }
++         */
+     }
+ 
+     @Override
+     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
+-        return state.getValue(POWERED) ? 15 : 0;
++
++        //return state.getValue(POWERED) ? 15 : 0;
++        return 0;
+     }
+ 
+     @Override
+     protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
++        /*
+         if (!state.getValue(POWERED)) {
+             return 0;
+         } else {
+             return state.getValue(FACING) == side ? 15 : 0;
+-        }
++        }*/
++        return 0;
+     }
+ 
+     @Override
+     protected boolean isSignalSource(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override

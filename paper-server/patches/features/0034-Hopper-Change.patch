@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Thu, 5 Feb 2026 23:28:53 +0700
+Subject: [PATCH] Hopper Change
+
+
+diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index 0c84cb909676862d86576592957e5363cfaed496..1c47a7362a9b2e4509653537d25e971c7cfe27a5 100644
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -144,8 +144,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+             } else {
+                 blockEntity.setCooldown(100);
+             }
+-            /*
+-            // Spigot start
++            /*// Spigot start
+             boolean result = tryMoveItems(level, pos, state, blockEntity, () -> {
+                 return suckInItems(level, blockEntity);
+             });
+@@ -553,7 +552,6 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+                     return true;
+                 }
+             }
+-
+             return false;
+         } else {
+             boolean flag = hopper.isGridAligned() && blockState.isCollisionShapeFullBlock(level, blockPos) && !blockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
+@@ -635,13 +633,13 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         boolean flag = false;
+         // CraftBukkit start
+         if (org.bukkit.event.inventory.InventoryPickupItemEvent.getHandlerList().getRegisteredListeners().length > 0) { // Paper - optimize hoppers
+-        org.bukkit.event.inventory.InventoryPickupItemEvent event = new org.bukkit.event.inventory.InventoryPickupItemEvent(
+-            getInventory(container), (org.bukkit.entity.Item) item.getBukkitEntity() // Paper - Perf: Optimize Hoppers; use getInventory() to avoid snapshot creation
+-        );
+-        if (!event.callEvent()) {
+-            return false;
+-        }
+-        // CraftBukkit end
++            org.bukkit.event.inventory.InventoryPickupItemEvent event = new org.bukkit.event.inventory.InventoryPickupItemEvent(
++                getInventory(container), (org.bukkit.entity.Item) item.getBukkitEntity() // Paper - Perf: Optimize Hoppers; use getInventory() to avoid snapshot creation
++            );
++            if (!event.callEvent()) {
++                return false;
++            }
++            // CraftBukkit end
+         } // Paper - Perf: Optimize Hoppers
+         ItemStack itemStack = item.getItem().copy();
+         ItemStack itemStack1 = addItem(null, container, itemStack, null);

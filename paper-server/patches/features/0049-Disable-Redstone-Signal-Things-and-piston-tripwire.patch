@@ -1,0 +1,219 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 14:40:07 +0700
+Subject: [PATCH] Disable Redstone Signal Things and piston / tripwire
+
+
+diff --git a/net/minecraft/world/level/block/BarrelBlock.java b/net/minecraft/world/level/block/BarrelBlock.java
+index 8139799a24274cfb70a99d301c2688c0360720c6..9c3c72557dfae0c452d8d2d328b7facc7562552c 100644
+--- a/net/minecraft/world/level/block/BarrelBlock.java
++++ b/net/minecraft/world/level/block/BarrelBlock.java
+@@ -69,7 +69,7 @@ public class BarrelBlock extends BaseEntityBlock {
+ 
+     @Override
+     protected boolean hasAnalogOutputSignal(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/BeehiveBlock.java b/net/minecraft/world/level/block/BeehiveBlock.java
+index 7b24213eb30f60d49c37fc7d1242b52db578e634..7f99a36aa065fa12505740f719530371b6c9f6cc 100644
+--- a/net/minecraft/world/level/block/BeehiveBlock.java
++++ b/net/minecraft/world/level/block/BeehiveBlock.java
+@@ -78,7 +78,7 @@ public class BeehiveBlock extends BaseEntityBlock {
+ 
+     @Override
+     protected boolean hasAnalogOutputSignal(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/BellBlock.java b/net/minecraft/world/level/block/BellBlock.java
+index 8462a93fdae5d023f29ed0e2e3b98cbd90aaea10..7ef2aaeffdda0b02ab151140d271caf3710e76dd 100644
+--- a/net/minecraft/world/level/block/BellBlock.java
++++ b/net/minecraft/world/level/block/BellBlock.java
+@@ -69,14 +69,14 @@ public class BellBlock extends BaseEntityBlock {
+ 
+     @Override
+     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+-        boolean hasNeighborSignal = level.hasNeighborSignal(pos);
++        /*boolean hasNeighborSignal = level.hasNeighborSignal(pos);
+         if (hasNeighborSignal != state.getValue(POWERED)) {
+             if (hasNeighborSignal) {
+                 this.attemptToRing(level, pos, null);
+             }
+ 
+             level.setBlock(pos, state.setValue(POWERED, hasNeighborSignal), Block.UPDATE_ALL);
+-        }
++        }*/
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/BrewingStandBlock.java b/net/minecraft/world/level/block/BrewingStandBlock.java
+index bd6dc109fd9c37666f23ccd17c0eab8aff95e777..f040d4658605b05a7ff9aff023da42dc6b74bcb8 100644
+--- a/net/minecraft/world/level/block/BrewingStandBlock.java
++++ b/net/minecraft/world/level/block/BrewingStandBlock.java
+@@ -85,7 +85,7 @@ public class BrewingStandBlock extends BaseEntityBlock {
+ 
+     @Override
+     protected boolean hasAnalogOutputSignal(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/ChestBlock.java b/net/minecraft/world/level/block/ChestBlock.java
+index fa2dce759419f62825000718361f47c6f208cdb2..b969dcb4bb2538b5bf1d3d3203297e9b80e24046 100644
+--- a/net/minecraft/world/level/block/ChestBlock.java
++++ b/net/minecraft/world/level/block/ChestBlock.java
+@@ -396,7 +396,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements
+ 
+     @Override
+     protected boolean hasAnalogOutputSignal(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/ChiseledBookShelfBlock.java b/net/minecraft/world/level/block/ChiseledBookShelfBlock.java
+index cea0f015290137a5284f4a3021c954272b3db543..db8b2e916f039a0d1dfbca4804208748242ac997 100644
+--- a/net/minecraft/world/level/block/ChiseledBookShelfBlock.java
++++ b/net/minecraft/world/level/block/ChiseledBookShelfBlock.java
+@@ -171,7 +171,7 @@ public class ChiseledBookShelfBlock extends BaseEntityBlock implements Selectabl
+ 
+     @Override
+     protected boolean hasAnalogOutputSignal(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/ComposterBlock.java b/net/minecraft/world/level/block/ComposterBlock.java
+index 429e833ffe7c89d7b0ca7515dbd82ffc1ce8d60d..c7613c017c7ecbdbb07edd1c10e38363879bd9a8 100644
+--- a/net/minecraft/world/level/block/ComposterBlock.java
++++ b/net/minecraft/world/level/block/ComposterBlock.java
+@@ -383,7 +383,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+     @Override
+     protected boolean hasAnalogOutputSignal(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/DiodeBlock.java b/net/minecraft/world/level/block/DiodeBlock.java
+index 02ffb5569e2405d86b3a4a695dd17c9372169ff7..88dad3f6c3f473574b16b5dca7f90ba0fa1cf48d 100644
+--- a/net/minecraft/world/level/block/DiodeBlock.java
++++ b/net/minecraft/world/level/block/DiodeBlock.java
+@@ -83,11 +83,12 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
+ 
+     @Override
+     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
+-        if (!state.getValue(POWERED)) {
++        /*if (!state.getValue(POWERED)) {
+             return 0;
+         } else {
+             return state.getValue(FACING) == side ? this.getOutputSignal(level, pos, state) : 0;
+-        }
++        }*/
++        return 0;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/FenceGateBlock.java b/net/minecraft/world/level/block/FenceGateBlock.java
+index 48aa8820761806f40761ab18496720af538bbd4d..2f4a1697ac56883259389bc895fa45f8e09ac549 100644
+--- a/net/minecraft/world/level/block/FenceGateBlock.java
++++ b/net/minecraft/world/level/block/FenceGateBlock.java
+@@ -197,7 +197,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
+ 
+     @Override
+     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+-        if (!level.isClientSide()) {
++        /*if (!level.isClientSide()) {
+             boolean hasNeighborSignal = level.hasNeighborSignal(pos);
+             // CraftBukkit start
+             boolean oldPowered = state.getValue(FenceGateBlock.POWERED);
+@@ -224,7 +224,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
+                     level.gameEvent(null, hasNeighborSignal ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+                 }
+             }
+-        }
++        }*/
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/LecternBlock.java b/net/minecraft/world/level/block/LecternBlock.java
+index 52b9bd310c731c407fc4264559084debec81d3d9..b4c1b1bad23b2792147d736bb784709f6e581b40 100644
+--- a/net/minecraft/world/level/block/LecternBlock.java
++++ b/net/minecraft/world/level/block/LecternBlock.java
+@@ -207,7 +207,7 @@ public class LecternBlock extends BaseEntityBlock {
+ 
+     @Override
+     protected boolean isSignalSource(BlockState state) {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/TripWireBlock.java b/net/minecraft/world/level/block/TripWireBlock.java
+index 9d005c3db8f0c784cdd7217e7b110daa703a9cf3..50d44d1d13466afc5e32c09a7f5150dd8bfd9ddb 100644
+--- a/net/minecraft/world/level/block/TripWireBlock.java
++++ b/net/minecraft/world/level/block/TripWireBlock.java
+@@ -94,10 +94,13 @@ public class TripWireBlock extends Block {
+         BlockState neighborState,
+         RandomSource random
+     ) {
++        /*
+         if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return state; // Paper - prevent tripwire from updating
+         return direction.getAxis().isHorizontal()
+             ? state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.shouldConnectTo(neighborState, direction))
+             : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
++        */
++        return state;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/block/piston/PistonBaseBlock.java b/net/minecraft/world/level/block/piston/PistonBaseBlock.java
+index 3bbfa079a2a2da3de361352738b6101894acf82c..7c6386cd4dbf7188c16faa0ac94bb3cd19e08f30 100644
+--- a/net/minecraft/world/level/block/piston/PistonBaseBlock.java
++++ b/net/minecraft/world/level/block/piston/PistonBaseBlock.java
+@@ -128,6 +128,7 @@ public class PistonBaseBlock extends DirectionalBlock {
+     }
+ 
+     private boolean getNeighborSignal(SignalGetter level, BlockPos pos, Direction direction) {
++        /*
+         for (Direction direction1 : Direction.values()) {
+             if (direction1 != direction && level.hasSignal(pos.relative(direction1), direction1)) {
+                 return true;
+@@ -146,7 +147,8 @@ public class PistonBaseBlock extends DirectionalBlock {
+             }
+ 
+             return false;
+-        }
++        }*/
++        return false;
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java b/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java
+index b38968ed67300a93b23a317f52fdfdff58b9fc45..c5a03d0aba69362b32d28bf6679e65552d0a48c0 100644
+--- a/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java
++++ b/net/minecraft/world/level/redstone/RedstoneWireEvaluator.java
+@@ -18,13 +18,11 @@ public abstract class RedstoneWireEvaluator {
+ 
+     protected int getBlockSignal(Level level, BlockPos pos) {
+ 
+-        /*return this.wireBlock.getBlockSignal(level, pos);*/
+-        return 0;
++        return this.wireBlock.getBlockSignal(level, pos);
+     }
+ 
+     protected int getWireSignal(BlockPos pos, BlockState state) {
+-        /*return state.is(this.wireBlock) ? state.getValue(RedStoneWireBlock.POWER) : 0;*/
+-        return 0;
++        return state.is(this.wireBlock) ? state.getValue(RedStoneWireBlock.POWER) : 0;
+     }
+ 
+     protected int getIncomingWireSignal(Level level, BlockPos pos) {

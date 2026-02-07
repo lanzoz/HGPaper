@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Sat, 7 Feb 2026 16:56:48 +0700
+Subject: [PATCH] Disable place update TripWireBlock and disable sound for
+ TripWireBlock
+
+
+diff --git a/net/minecraft/world/level/block/Blocks.java b/net/minecraft/world/level/block/Blocks.java
+index 2eb6fe73adeda3e525e147b7f7034bdec651e04a..2314360480ea11b7dc6805771fae16ea64edc95c 100644
+--- a/net/minecraft/world/level/block/Blocks.java
++++ b/net/minecraft/world/level/block/Blocks.java
+@@ -2741,7 +2741,11 @@ public class Blocks {
+         "tripwire_hook", TripWireHookBlock::new, BlockBehaviour.Properties.of().noCollision().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY)
+     );
+     public static final Block TRIPWIRE = register(
+-        "tripwire", properties -> new TripWireBlock(TRIPWIRE_HOOK, properties), BlockBehaviour.Properties.of().noCollision().pushReaction(PushReaction.DESTROY)
++        "tripwire", properties -> new TripWireBlock(TRIPWIRE_HOOK, properties), BlockBehaviour.Properties.of()
++            .noCollision()
++            .sound(SoundType.EMPTY)
++            .pushReaction(PushReaction.DESTROY)
++
+     );
+     public static final Block EMERALD_BLOCK = register(
+         "emerald_block",
+diff --git a/net/minecraft/world/level/block/TripWireBlock.java b/net/minecraft/world/level/block/TripWireBlock.java
+index 868bffc956e09d26aaa780f6f87d397816d1615a..be941dbd37507b821ba1f6219cb0110fcc976b63 100644
+--- a/net/minecraft/world/level/block/TripWireBlock.java
++++ b/net/minecraft/world/level/block/TripWireBlock.java
+@@ -108,10 +108,11 @@ public class TripWireBlock extends Block {
+ 
+     @Override
+     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
++        /*
+         if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent adjacent tripwires from updating
+         if (!oldState.is(state.getBlock())) {
+             this.updateSource(level, pos, state);
+-        }
++        }*/
+     }
+ 
+     @Override

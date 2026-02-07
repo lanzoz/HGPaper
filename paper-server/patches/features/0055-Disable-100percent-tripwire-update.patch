@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Sat, 7 Feb 2026 18:06:08 +0700
+Subject: [PATCH] Disable 100percent tripwire update
+
+
+diff --git a/net/minecraft/world/level/block/TripWireHookBlock.java b/net/minecraft/world/level/block/TripWireHookBlock.java
+index 292fe41967db74884e5937cb125f1e022ccfb6bd..f0496b3a25cc3f93a5d547cb464cba9b11b18325 100644
+--- a/net/minecraft/world/level/block/TripWireHookBlock.java
++++ b/net/minecraft/world/level/block/TripWireHookBlock.java
+@@ -108,6 +108,7 @@ public class TripWireHookBlock extends Block {
+     public static void calculateState(
+         Level level, BlockPos pos, BlockState hookState, boolean attaching, boolean shouldNotifyNeighbours, int searchRange, @Nullable BlockState state
+     ) {
++        /*
+         Optional<Direction> optionalValue = hookState.getOptionalValue(FACING);
+         if (optionalValue.isPresent()) {
+             Direction direction = optionalValue.get();
+@@ -206,7 +207,7 @@ public class TripWireHookBlock extends Block {
+                     }
+                 }
+             }
+-        }
++        }*/
+     }
+ 
+     @Override

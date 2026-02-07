@@ -1,0 +1,96 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 12:27:52 +0700
+Subject: [PATCH] LeafDecay Remake Mechanics0-1-4
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index 75ae5b63b3f28f6403c31e1410abc0a365fa2e43..57f553e131dbba11ae1784d6f1a3c28fd1e1f0ee 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -65,47 +65,24 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+ 
+     @Override
+     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+-        // 1. ถ้าเป็นใบไม้ที่ผู้เล่นวาง (Persistent) ไม่ต้องให้มันเหี่ยว
++
+         if (state.getValue(PERSISTENT)) {
+             return;
+         }
+-
+-        // 2. แทนที่จะเช็คค่า DISTANCE == 7 (แบบปกติ)
+-        // เราจะใช้การ "กวาดสายตา" หา Note Block หรือ Log รอบๆ แทน
+-        if (!hasLogNearby(level, pos)) {
+-
+-            // 3. เรียก Event ของ Bukkit เพื่อให้ปลักอินอื่น (ถ้ามี) ตรวจสอบ
+-            org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(
+-                org.bukkit.craftbukkit.block.CraftBlock.at(level, pos)
+-            );
++        if (this.decaying(state)) {
++            // CraftBukkit start
++            org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+             level.getCraftServer().getPluginManager().callEvent(event);
+ 
+-            if (event.isCancelled()) {
++            if (event.isCancelled() || !level.getBlockState(pos).is(this)) {
+                 return;
+             }
+-
+-            // 4. สั่งทำลายตัวเอง (เหี่ยว)
++            // CraftBukkit end
+             dropResources(state, level, pos);
+             level.removeBlock(pos, false);
+         }
+     }
+ 
+-    // ฟังก์ชันช่วยเช็คว่ามี "แกนกลาง" อยู่ใกล้ๆ ไหม
+-    private boolean hasLogNearby(ServerLevel level, BlockPos pos) {
+-        int radius = 4; // รัศมีที่ใบไม้จะมองหาลำต้น (ปกติ Vanilla คือ 4-6)
+-
+-        // วนลูปเช็คบล็อกรอบๆ ในระยะ radius
+-        for (BlockPos checkPos : BlockPos.betweenClosed(pos.offset(-radius, -radius, -radius), pos.offset(radius, radius, radius))) {
+-            BlockState neighbor = level.getBlockState(checkPos);
+-
+-            // ถ้าเจอ Note Block (แกน custom) หรือ Logs ปกติ ให้ถือว่ายังมีชีวิตอยู่ได้
+-            if (neighbor.is(net.minecraft.world.level.block.Blocks.NOTE_BLOCK) || neighbor.is(org.bukkit.Tag.LOGS.getKey().toString().contains("logs") ? BlockTags.LOGS : BlockTags.LOGS)) {
+-                return true;
+-            }
+-        }
+-        return false;
+-    }
+-
+     protected boolean decaying(BlockState state) {
+         return !state.getValue(PERSISTENT) && state.getValue(DISTANCE) == 7;
+     }
+@@ -138,17 +115,12 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         /*boolean isAzalea = state.is(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES) || state.is(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES);
+         if (isAzalea) {
+             return state;
+-        }
++        }*/
+ 
+         int i = getDistanceAt(neighborState) + 1;
+         if (i != 1 || state.getValue(DISTANCE) != i) {
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+-        }*/
+-
+-        /*int distance = getDistanceAt(neighborState) + 1;
+-        if (distance != 1 || state.getValue(DISTANCE) != distance) {
+-            scheduledTickAccess.scheduleTick(pos, this, 5); // สั่งให้อัปเดตใน tick ถัดไป
+-        }*/
++        }
+         return state;
+     }
+ 
+@@ -168,10 +140,7 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+     }
+ 
+     private static int getDistanceAt(BlockState neighbor) {
+-        /*return getOptionalDistanceAt(neighbor).orElse(7);*/
+-        if (neighbor.is(BlockTags.LOGS)) return 0; // ถ้าเป็นไม้ Distance คือ 0
+-        if (neighbor.getBlock() instanceof LeavesBlock) return neighbor.getValue(DISTANCE); // ถ้าเป็นใบไม้ เอาค่ามันมา
+-        return 7;
++        return getOptionalDistanceAt(neighbor).orElse(7);
+     }
+ 
+     public static OptionalInt getOptionalDistanceAt(BlockState state) {

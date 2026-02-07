@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 12:58:21 +0700
+Subject: [PATCH] LeafDecay Remake Mechanics0-1-7
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index 7423caf3b4a1854510f97cf91be2e3693e12a7e7..59a9663dca19a09b50a38e12c2233a16dc34d431 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -87,8 +87,45 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         return !state.getValue(PERSISTENT) && state.getValue(DISTANCE) == 7;
+     }
+ 
++    private boolean hasLogNearby(LevelReader level, BlockPos pos) {
++        int radius = 4; // รัศมีการมองหาลำต้น
++        for (BlockPos checkPos : BlockPos.betweenClosed(pos.offset(-radius, -radius, -radius), pos.offset(radius, radius, radius))) {
++            BlockState neighbor = level.getBlockState(checkPos);
++            // ใช้ getOptionalDistanceAt ที่คุณแก้ไว้แล้ว ซึ่งรองรับ Note Block
++            if (getOptionalDistanceAt(neighbor).orElse(7) == 0) {
++                return true;
++            }
++        }
++        return false;
++    }
++
+     @Override
+     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
++        if (state.getValue(PERSISTENT)) return;
++
++        if (!hasLogNearby(level, pos)) {
++            org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
++            level.getCraftServer().getPluginManager().callEvent(event);
++
++            if (event.isCancelled() || !level.getBlockState(pos).is(this)) {
++                return;
++            }
++            // -------------------------------------------------------------
++
++            dropResources(state, level, pos);
++            level.removeBlock(pos, false);
++
++            for (Direction dir : Direction.values()) {
++                BlockPos neighborPos = pos.relative(dir);
++                BlockState neighborState = level.getBlockState(neighborPos);
++                if (neighborState.is(this)) {
++                    level.scheduleTick(neighborPos, this, 2);
++                }
++            }
++        }
++
++
++
+         /*level.setBlock(pos, updateDistance(state, level, pos), Block.UPDATE_ALL);*/
+     }
+ 
+@@ -112,14 +149,21 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+         }
+ 
+-        /*boolean isAzalea = state.is(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES) || state.is(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES);
++
++        /* ONLY AZALEA
++        boolean isAzalea = state.is(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES) || state.is(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES);
+         if (isAzalea) {
+             return state;
+         }*/
+ 
++        /* DEFAULT CODE
+         int i = getDistanceAt(neighborState) + 1;
+         if (i != 1 || state.getValue(DISTANCE) != i) {
+-            scheduledTickAccess.scheduleTick(pos, this, 1);
++            scheduledTickAccess.scheduleTick(pos, this, 5);
++        }*/
++
++        if (!state.getValue(PERSISTENT)) {
++            scheduledTickAccess.scheduleTick(pos, this, 5);
+         }
+         return state;
+     }

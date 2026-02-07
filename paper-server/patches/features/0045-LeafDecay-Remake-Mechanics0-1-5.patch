@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 12:32:27 +0700
+Subject: [PATCH] LeafDecay Remake Mechanics0-1-5
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index 57f553e131dbba11ae1784d6f1a3c28fd1e1f0ee..1461300c4692dcb1fec38adfa6992d41d01d8bc7 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -89,7 +89,7 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+ 
+     @Override
+     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+-        level.setBlock(pos, updateDistance(state, level, pos), Block.UPDATE_ALL);
++        /*level.setBlock(pos, updateDistance(state, level, pos), Block.UPDATE_ALL);*/
+     }
+ 
+     @Override
+@@ -117,10 +117,10 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             return state;
+         }*/
+ 
+-        int i = getDistanceAt(neighborState) + 1;
++        /*int i = getDistanceAt(neighborState) + 1;
+         if (i != 1 || state.getValue(DISTANCE) != i) {
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+-        }
++        }*/
+         return state;
+     }
+ 

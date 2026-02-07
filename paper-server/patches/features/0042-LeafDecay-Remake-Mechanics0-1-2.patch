@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 11:11:48 +0700
+Subject: [PATCH] LeafDecay Remake Mechanics0-1-2
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index ae317d892315e14bcf09b43d4f0ec94efc4000ba..d5cc363a503c909aad2e04db256144f611c7f05c 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -63,46 +63,37 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         return state.getValue(DISTANCE) == 7 && !state.getValue(PERSISTENT);
+     }
+ 
+-    private boolean hasLogNearby(ServerLevel level, BlockPos pos) {
+-        for (BlockPos checkPos : BlockPos.betweenClosed(pos.offset(-2, -2, -2), pos.offset(2, 2, 2))) {
+-            if (level.getBlockState(checkPos).is(BlockTags.LOGS) || level.getBlockState(checkPos).is(net.minecraft.world.level.block.Blocks.NOTE_BLOCK)) return true;
+-        }
+-        return false;
+-    }
+-
+     @Override
+     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
++        // ถ้าผู้เล่นตั้งใจวาง (Persistent) ก็ไม่ต้องให้มันเหี่ยว
++        if (state.getValue(PERSISTENT)) return;
+ 
+-        if (state.getValue(PERSISTENT)) {
+-            return;
+-        }
+-
++        // แทนที่จะเช็ค Distance เราจะเช็คว่า "มีไม้ในระยะที่กำหนดไหม"
++        // โดยใช้ฟังก์ชันที่เราต้องเขียนขึ้นเอง (เช่น เช็คในรัศมี 4-6 บล็อก)
+         if (!hasLogNearby(level, pos)) {
+ 
++            // เรียก Event ปกติ
+             org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+             level.getCraftServer().getPluginManager().callEvent(event);
+ 
+-            if (event.isCancelled() || !level.getBlockState(pos).is(this)) {
+-                return;
++            if (!event.isCancelled()) {
++                dropResources(state, level, pos);
++                level.removeBlock(pos, false);
+             }
+-            // -----------------------------------------------------------
+-
+-            dropResources(state, level, pos);
+-            level.removeBlock(pos, false);
+         }
+-        /*
+-        if (this.decaying(state)) {
+-            // CraftBukkit start
+-            org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+-            level.getCraftServer().getPluginManager().callEvent(event);
++    }
+ 
+-            if (event.isCancelled() || !level.getBlockState(pos).is(this)) {
+-                return;
++    // ฟังก์ชันสำหรับสแกนหาบล็อกไม้ (Note Block หรือ Logs) รอบๆ
++    private boolean hasLogNearby(ServerLevel level, BlockPos pos) {
++        // สแกนหาบล็อกในระยะ (รัศมี 4 บล็อก ตามมาตรฐาน Vanilla)
++        for (BlockPos checkPos : BlockPos.betweenClosed(pos.offset(-4, -4, -4), pos.offset(4, 4, 4))) {
++            BlockState neighbor = level.getBlockState(checkPos);
++            // เช็คว่าเป็น Log หรือ Note Block (ลำต้น Custom ของคุณ)
++            if (neighbor.is(BlockTags.LOGS) || neighbor.is(net.minecraft.world.level.block.Blocks.NOTE_BLOCK)) {
++                return true;
+             }
+-            // CraftBukkit end
+-            dropResources(state, level, pos);
+-            level.removeBlock(pos, false);
+-        }*/
++        }
++        return false;
+     }
+ 
+     protected boolean decaying(BlockState state) {
+@@ -144,10 +135,10 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+         }*/
+ 
+-        int distance = getDistanceAt(neighborState) + 1;
++        /*int distance = getDistanceAt(neighborState) + 1;
+         if (distance != 1 || state.getValue(DISTANCE) != distance) {
+             scheduledTickAccess.scheduleTick(pos, this, 5); // สั่งให้อัปเดตใน tick ถัดไป
+-        }
++        }*/
+         return state;
+     }
+ 

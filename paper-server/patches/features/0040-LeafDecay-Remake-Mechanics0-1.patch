@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 10:28:20 +0700
+Subject: [PATCH] LeafDecay Remake Mechanics0-1
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index 04f4b2dba105e62e0a5d3085a239a248a7e3c8c1..ba2a28934e4dbd46686e86d5393f8da361796b43 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -144,7 +144,10 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+         }*/
+ 
+-
++        int distance = getDistanceAt(neighborState) + 1;
++        if (distance != 1 || state.getValue(DISTANCE) != distance) {
++            scheduledTickAccess.scheduleTick(pos, this, 1); // สั่งให้อัปเดตใน tick ถัดไป
++        }
+         return state;
+     }
+ 
+@@ -164,7 +167,10 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+     }
+ 
+     private static int getDistanceAt(BlockState neighbor) {
+-        return getOptionalDistanceAt(neighbor).orElse(7);
++        /*return getOptionalDistanceAt(neighbor).orElse(7);*/
++        if (neighbor.is(BlockTags.LOGS)) return 0; // ถ้าเป็นไม้ Distance คือ 0
++        if (neighbor.getBlock() instanceof LeavesBlock) return neighbor.getValue(DISTANCE); // ถ้าเป็นใบไม้ เอาค่ามันมา
++        return 7;
+     }
+ 
+     public static OptionalInt getOptionalDistanceAt(BlockState state) {

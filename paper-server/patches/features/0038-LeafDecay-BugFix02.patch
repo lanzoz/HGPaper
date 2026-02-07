@@ -1,0 +1,78 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Fri, 6 Feb 2026 01:14:09 +0700
+Subject: [PATCH] LeafDecay BugFix02
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index 1db07b838fde45a8810414fe40c827326275f91a..d374e2d34ca3b75533e4f4fcd2ed7aa07e6d028f 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -63,9 +63,38 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         return state.getValue(DISTANCE) == 7 && !state.getValue(PERSISTENT);
+     }
+ 
++    private boolean hasLogNearby(ServerLevel level, BlockPos pos) {
++        for (BlockPos checkPos : BlockPos.betweenClosed(pos.offset(-2, -2, -2), pos.offset(2, 2, 2))) {
++            if (level.getBlockState(checkPos).is(BlockTags.LOGS) || level.getBlockState(checkPos).is(net.minecraft.world.level.block.Blocks.NOTE_BLOCK)) return true;
++        }
++        return false;
++    }
++
+     @Override
+     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+-        if (this.decaying(state)) {
++
++        if (state.getValue(PERSISTENT)) {
++            return;
++        }
++
++        // 2. เช็คว่าควรสลายตัวไหม (โดยไม่พึ่งค่า DISTANCE ของเดิม)
++        // เราจะใช้การเช็คไม้รอบๆ แบบ Manual แทน เพื่อให้เราสามารถคงค่า Distance เดิมไว้คุม Model ได้
++        if (!hasLogNearby(level, pos)) {
++
++            // --- ส่วนของ CraftBukkit (ใส่ไว้เหมือนเดิมเพื่อให้ Plugin ทำงานได้) ---
++            org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
++            level.getCraftServer().getPluginManager().callEvent(event);
++
++            if (event.isCancelled() || !level.getBlockState(pos).is(this)) {
++                return;
++            }
++            // -----------------------------------------------------------
++
++            dropResources(state, level, pos);
++            level.removeBlock(pos, false);
++        }
++
++        /*if (this.decaying(state)) {
+             // CraftBukkit start
+             org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+             level.getCraftServer().getPluginManager().callEvent(event);
+@@ -76,7 +105,7 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+             // CraftBukkit end
+             dropResources(state, level, pos);
+             level.removeBlock(pos, false);
+-        }
++        }*/
+     }
+ 
+     protected boolean decaying(BlockState state) {
+@@ -107,7 +136,8 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         if (state.getValue(WATERLOGGED)) {
+             scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+         }
+-        boolean isAzalea = state.is(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES) || (state.is(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES));
++
++        /*boolean isAzalea = state.is(net.minecraft.world.level.block.Blocks.AZALEA_LEAVES) || state.is(net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES);
+         if (isAzalea) {
+             return state;
+         }
+@@ -115,7 +145,7 @@ public abstract class LeavesBlock extends Block implements SimpleWaterloggedBloc
+         int i = getDistanceAt(neighborState) + 1;
+         if (i != 1 || state.getValue(DISTANCE) != i) {
+             scheduledTickAccess.scheduleTick(pos, this, 1);
+-        }
++        }*/
+ 
+ 
+         return state;

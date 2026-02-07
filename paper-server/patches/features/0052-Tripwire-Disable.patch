@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LanzoZ <bhbxgre@gmail.com>
+Date: Sat, 7 Feb 2026 13:47:07 +0700
+Subject: [PATCH] Tripwire Disable
+
+
+diff --git a/net/minecraft/world/level/block/TripWireBlock.java b/net/minecraft/world/level/block/TripWireBlock.java
+index 50d44d1d13466afc5e32c09a7f5150dd8bfd9ddb..4abf3b1092739c5b1fbea49bc585b2abd6adf04b 100644
+--- a/net/minecraft/world/level/block/TripWireBlock.java
++++ b/net/minecraft/world/level/block/TripWireBlock.java
+@@ -73,6 +73,8 @@ public class TripWireBlock extends Block {
+ 
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext context) {
++        return this.defaultBlockState();
++        /*
+         if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return this.defaultBlockState(); // Paper - place tripwire without updating
+         BlockGetter level = context.getLevel();
+         BlockPos clickedPos = context.getClickedPos();
+@@ -81,6 +83,7 @@ public class TripWireBlock extends Block {
+             .setValue(EAST, this.shouldConnectTo(level.getBlockState(clickedPos.east()), Direction.EAST))
+             .setValue(SOUTH, this.shouldConnectTo(level.getBlockState(clickedPos.south()), Direction.SOUTH))
+             .setValue(WEST, this.shouldConnectTo(level.getBlockState(clickedPos.west()), Direction.WEST));
++        */
+     }
+ 
+     @Override
+@@ -113,25 +116,29 @@ public class TripWireBlock extends Block {
+ 
+     @Override
+     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
++        return;
++        /*
+         if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent adjacent tripwires from updating
+         if (!movedByPiston) {
+             this.updateSource(level, pos, state.setValue(POWERED, true));
+-        }
++        }*/
+     }
+ 
+     @Override
+     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+-        if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return state; // Paper - prevent disarming tripwires
++        /*if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return state; // Paper - prevent disarming tripwires
+         if (!level.isClientSide() && !player.getMainHandItem().isEmpty() && player.getMainHandItem().is(Items.SHEARS)) {
+             level.setBlock(pos, state.setValue(DISARMED, true), Block.UPDATE_NONE);
+             level.gameEvent(player, GameEvent.SHEAR, pos);
+-        }
+-
+-        return super.playerWillDestroy(level, pos, state, player);
++        }*/
++        return state;
++        /*return super.playerWillDestroy(level, pos, state, player);*/
+     }
+ 
+     private void updateSource(Level level, BlockPos pos, BlockState state) {
+-        if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent adjacent tripwires from updating
++        return;
++
++        /*if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent adjacent tripwires from updating
+         for (Direction direction : new Direction[]{Direction.SOUTH, Direction.WEST}) {
+             for (int i = 1; i < 42; i++) {
+                 BlockPos blockPos = pos.relative(direction, i);
+@@ -147,7 +154,7 @@ public class TripWireBlock extends Block {
+                     break;
+                 }
+             }
+-        }
++        }*/
+     }
+ 
+     @Override
+@@ -157,21 +164,24 @@ public class TripWireBlock extends Block {
+ 
+     @Override
+     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean pastEdges) {
+-        if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent tripwires from detecting collision
++        return;
++        /*if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent tripwires from detecting collision
+         if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.block.CraftBlock.at(level, pos)).callEvent()) { return; } // Paper - Add EntityInsideBlockEvent
+         if (!level.isClientSide()) {
+             if (!state.getValue(POWERED)) {
+                 this.checkPressed(level, pos, List.of(entity));
+             }
+-        }
++        }*/
+     }
+ 
+     @Override
+     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
++        return;
++        /*
+         if (io.papermc.paper.configuration.GlobalConfiguration.get().blockUpdates.disableTripwireUpdates) return; // Paper - prevent tripwire pressed check
+         if (level.getBlockState(pos).getValue(POWERED)) {
+             this.checkPressed(level, pos);
+-        }
++        }*/
+     }
+ 
+     private void checkPressed(Level level, BlockPos pos) {
