@@ -15,6 +15,8 @@ val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
 
 dependencies {
     mache("io.papermc:mache:1.21.11+build.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("com.mysql:mysql-connector-j:8.3.0")
     paperclip("io.papermc:paperclip:3.0.3")
 }
 
